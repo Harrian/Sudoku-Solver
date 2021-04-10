@@ -2,7 +2,6 @@
 
 #include "Sudoku.h"
 #include "SudokuParser.h"
-#include "ArrayUtil.h"
 
 #include <iostream>
 #include <fstream>
@@ -49,15 +48,14 @@ int main(int argc, char** argv)
 
   try
   {
-    ConstSudokuBoard original_board = [](const char * const file_name) -> ConstSudokuBoard
+    const SudokuBoard original_board = [](const char * const file_name) -> SudokuBoard
       {
         std::ifstream sudoku_file(file_name);
 
         if(sudoku_file)
         {
           SudokuBoard parsed_board = board_from_file(sudoku_file);
-          ConstSudokuBoard const_parsed_board = non_const_to_const_copy(parsed_board);
-          return const_parsed_board;
+          return parsed_board;
         }
         else
         {

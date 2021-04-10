@@ -5,7 +5,7 @@
 #include <iostream>
 #include <ostream>
 
-Solver::Solver(ConstSudokuBoard original_state, std::size_t start_point) : original_state(original_state), current_state(const_to_non_const_copy(original_state)), start_point(start_point)
+Solver::Solver(const SudokuBoard & original_state, std::size_t start_point) : original_state(original_state), current_state(original_state), start_point(start_point)
 {
 }
 
