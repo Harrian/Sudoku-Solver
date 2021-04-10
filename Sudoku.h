@@ -12,7 +12,6 @@ constexpr SudokuElementType sudoku_dimensions = 9;
 constexpr SudokuElementType sudoku_inner_square_dimensions = 3;
 static_assert(sudoku_dimensions % sudoku_inner_square_dimensions == 0, "Error squares cannot be even with given inner square dimensions");
 using SudokuBoard = std::array<std::array<SudokuElementType, sudoku_dimensions>, sudoku_dimensions>;
-using ConstSudokuBoard = const std::array<const std::array<SudokuElementType, sudoku_dimensions>, sudoku_dimensions>;
 
 namespace Sudoku
 {
@@ -28,12 +27,12 @@ namespace Sudoku
 class Solver
 {
   private:
-    ConstSudokuBoard original_state;
+    const SudokuBoard original_state;
     SudokuBoard current_state;
     const std::size_t start_point;
 
   public:
-    Solver(ConstSudokuBoard original_state, std::size_t start_point = 0);
+    Solver(const SudokuBoard & original_state, std::size_t start_point = 0);
     void solve(void);
     void printCurrentState(std::ostream & stream);
     SudokuBoard getCurrentState(void)
