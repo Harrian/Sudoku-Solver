@@ -22,6 +22,8 @@ void Solver::solve(void)
       {
         current_state[ypos][xpos] = 0;
         current_point--;
+        while(original_state[Sudoku::ypos(current_point)][Sudoku::xpos(current_point)] != 0)
+          current_point--;
       }
       else
       {
