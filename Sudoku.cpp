@@ -4,6 +4,7 @@
 #include "ArrayUtil.h"
 #include <iostream>
 #include <ostream>
+#include <cstring>
 
 static inline SudokuBoard::value_type::size_type calculate_square_index(SudokuElementType row, SudokuElementType column)
 {
@@ -78,9 +79,12 @@ SudokuBoard::value_type::size_type Sudoku::xpos(std::size_t pos)
 
 bool Sudoku::isComplete(const SudokuBoard & board)
 {
-  std::array<bool, sudoku_dimensions * sudoku_dimensions> column_flags = init_array<bool, sudoku_dimensions * sudoku_dimensions>(false);
-  std::array<bool, sudoku_dimensions * sudoku_dimensions> row_flags = init_array<bool, sudoku_dimensions * sudoku_dimensions>(false);
-  std::array<bool, sudoku_dimensions * sudoku_dimensions> square_flags = init_array<bool, sudoku_dimensions * sudoku_dimensions>(false);
+  static thread_local std::array<bool, sudoku_dimensions * sudoku_dimensions> column_flags;
+  static thread_local std::array<bool, sudoku_dimensions * sudoku_dimensions> row_flags;
+  static thread_local std::array<bool, sudoku_dimensions * sudoku_dimensions> square_flags;
+  std::memset(column_flags.data(), 0, sudoku_dimensions * sudoku_dimensions * sizeof(bool));
+  std::memset(row_flags.data(), 0, sudoku_dimensions * sudoku_dimensions * sizeof(bool));
+  std::memset(square_flags.data(), 0, sudoku_dimensions * sudoku_dimensions * sizeof(bool));
 
   for(SudokuBoard::size_type i = 0; i < sudoku_dimensions; i++)
   {
@@ -102,9 +106,12 @@ bool Sudoku::isComplete(const SudokuBoard & board)
 
 bool Sudoku::isPossibleSolution(const SudokuBoard & board)
 {
-  std::array<bool, sudoku_dimensions * sudoku_dimensions> column_flags = init_array<bool, sudoku_dimensions * sudoku_dimensions>(false);
-  std::array<bool, sudoku_dimensions * sudoku_dimensions> row_flags = init_array<bool, sudoku_dimensions * sudoku_dimensions>(false);
-  std::array<bool, sudoku_dimensions * sudoku_dimensions> square_flags = init_array<bool, sudoku_dimensions * sudoku_dimensions>(false);
+  static thread_local std::array<bool, sudoku_dimensions * sudoku_dimensions> column_flags;
+  static thread_local std::array<bool, sudoku_dimensions * sudoku_dimensions> row_flags;
+  static thread_local std::array<bool, sudoku_dimensions * sudoku_dimensions> square_flags;
+  std::memset(column_flags.data(), 0, sudoku_dimensions * sudoku_dimensions * sizeof(bool));
+  std::memset(row_flags.data(), 0, sudoku_dimensions * sudoku_dimensions * sizeof(bool));
+  std::memset(square_flags.data(), 0, sudoku_dimensions * sudoku_dimensions * sizeof(bool));
 
   for(SudokuBoard::size_type i = 0; i < sudoku_dimensions; i++)
   {
