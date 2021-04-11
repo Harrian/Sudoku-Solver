@@ -12,7 +12,9 @@ Solver::Solver(const SudokuBoard & original_state, std::size_t start_point) : or
 void Solver::solve(void)
 {
   std::size_t current_point = start_point;
-  while(!Sudoku::isComplete(current_state))
+  bool is_possibly_complete = true;
+  int_fast8_t blanks = Sudoku::getNumBlanks(current_state);
+  while(!(is_possibly_complete && blanks == 0 && Sudoku::isComplete(current_state)))
   {
     const SudokuBoard::size_type ypos = Sudoku::ypos(current_point);
     const SudokuBoard::value_type::size_type xpos = Sudoku::xpos(current_point);
@@ -24,13 +26,21 @@ void Solver::solve(void)
         current_point--;
         while(original_state[Sudoku::ypos(current_point)][Sudoku::xpos(current_point)] != 0)
           current_point--;
+        blanks++;
       }
       else
       {
+        if(current_state[ypos][xpos] == 0)
+          blanks--;
         current_state[ypos][xpos]++;
         if(Sudoku::isPossibleSolution(current_state))
         {
+          is_possibly_complete = true;
           current_point++;
+        }
+        else
+        {
+          is_possibly_complete = false;
         }
       }
     }
@@ -235,4 +245,20 @@ bool Sudoku::isPossibleSolution(const SudokuBoard & board)
   }
 
   return true;
+}
+
+int_fast8_t Sudoku::getNumBlanks(const SudokuBoard & board)
+{
+  int_fast8_t ret = 0;
+  for(const auto & x: board)
+  {
+    for(const auto & y: x)
+    {
+      if(y == 0)
+      {
+        ret++;
+      }
+    }
+  }
+  return ret;
 }

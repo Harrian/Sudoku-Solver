@@ -20,6 +20,7 @@ namespace Sudoku
   SudokuBoard::size_type ypos(std::size_t);
   SudokuBoard::value_type::size_type xpos(std::size_t);
 
+  int_fast8_t getNumBlanks(const SudokuBoard & board);
   bool isPossibleSolution(const SudokuBoard & board);
   bool isComplete(const SudokuBoard & board);
 }
