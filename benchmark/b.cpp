@@ -149,4 +149,28 @@ static void BM_Sudoku_Solver_Board3(benchmark::State & state)
 
 BENCHMARK(BM_Sudoku_Solver_Board3);
 
+static void BM_Sudoku_Solver_Board4(benchmark::State & state)
+{
+  const SudokuBoard board = {
+    std::array<SudokuElementType, 9>{9,6,2,4,1,5,3,7,8},
+    std::array<SudokuElementType, 9>{3,7,4,9,2,8,5,6,1},
+    std::array<SudokuElementType, 9>{1,8,5,7,6,3,4,2,9},
+    std::array<SudokuElementType, 9>{7,5,3,2,8,4,1,9,6},
+    std::array<SudokuElementType, 9>{2,1,8,3,9,6,7,4,5},
+    std::array<SudokuElementType, 9>{4,9,6,1,5,7,8,3,2},
+    std::array<SudokuElementType, 9>{5,3,1,6,7,2,9,8,4},
+    std::array<SudokuElementType, 9>{6,4,9,8,3,1,2,5,7},
+    std::array<SudokuElementType, 9>{8,2,7,5,4,9,6,1,3}};
+  for(auto _ : state)
+  {
+    SudokuBoard copy = board;
+    randomly_remove(copy);
+    Solver solver(copy);
+    solver.solve();
+    benchmark::ClobberMemory();
+  }
+}
+
+BENCHMARK(BM_Sudoku_Solver_Board4);
+
 BENCHMARK_MAIN();
