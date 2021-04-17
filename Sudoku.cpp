@@ -106,12 +106,7 @@ bool Sudoku::isComplete(const SudokuBoard & board)
 
 bool Sudoku::isPossibleSolution(const SudokuBoard & board)
 {
-  static thread_local std::array<bool, sudoku_dimensions * sudoku_dimensions> column_flags;
-  static thread_local std::array<bool, sudoku_dimensions * sudoku_dimensions> row_flags;
-  static thread_local std::array<bool, sudoku_dimensions * sudoku_dimensions> square_flags;
-  std::memset(column_flags.data(), 0, sudoku_dimensions * sudoku_dimensions * sizeof(bool));
-  std::memset(row_flags.data(), 0, sudoku_dimensions * sudoku_dimensions * sizeof(bool));
-  std::memset(square_flags.data(), 0, sudoku_dimensions * sudoku_dimensions * sizeof(bool));
+  __uint128_t column_flags = 0, row_flags = 0, square_flags = 0;
 
   for(SudokuBoard::size_type i = 0; i < sudoku_dimensions; i++)
   {
@@ -119,14 +114,18 @@ bool Sudoku::isPossibleSolution(const SudokuBoard & board)
     {
       if(board[i][j] != 0)
       {
-        if(row_flags[i * sudoku_dimensions + board[i][j]-1] || column_flags[j * sudoku_dimensions + board[i][j]-1] || square_flags[calculate_square_index(i,j) * sudoku_dimensions + board[i][j]-1])
+        if(
+            (row_flags & (((__uint128_t)1) << (i * sudoku_dimensions + board[i][j] - 1)))
+            || (column_flags & (((__uint128_t)1) << (j * sudoku_dimensions + board[i][j] - 1)))
+            || (square_flags & (((__uint128_t)1) << (calculate_square_index(i,j) * sudoku_dimensions + board[i][j]-1)))
+        )
         {
           return false;
         }
 
-        row_flags[i * sudoku_dimensions + board[i][j]-1] = true;
-        column_flags[j * sudoku_dimensions + board[i][j]-1] = true;
-        square_flags[calculate_square_index(i,j) * sudoku_dimensions + board[i][j]-1] = true;
+        row_flags |= (((__uint128_t)1) << (i * sudoku_dimensions + board[i][j]-1));
+        column_flags |= (((__uint128_t)1) << (j * sudoku_dimensions + board[i][j]-1));
+        square_flags |= (((__uint128_t)1) << (calculate_square_index(i,j) * sudoku_dimensions + board[i][j]-1));
       }
     }
   }
