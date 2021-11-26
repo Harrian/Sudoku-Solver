@@ -5,32 +5,29 @@
 #include <random>
 #include <iostream>
 
-static void randomize_board(SudokuBoard & to_randomize)
+static void randomize_board(SudokuBoard & to_randomize, std::mt19937 & gen, std::uniform_int_distribution<> & distrib)
 {
-  std::random_device rd;  //Will be used to obtain a seed for the random number engine
-  std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-  std::uniform_int_distribution<> distrib(0, 9);
+  //static thread_local std::mt19937 gen(0); //Standard mersenne_twister_engine seeded with rd()
+  //static thread_local std::uniform_int_distribution<> distrib(0, 9);
 
   for(auto & x: to_randomize)
     for(auto & y: x)
       y = distrib(gen);
 }
 
-static int random_number_to_remove(void)
+static int random_number_to_remove(std::mt19937 & gen, std::uniform_int_distribution<> & distrib)
 {
-  static thread_local std::random_device rd;  //Will be used to obtain a seed for the random number engine
-  static thread_local std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-  static thread_local std::uniform_int_distribution<> distrib(0, sudoku_dimensions * sudoku_dimensions - 1 - 17);
+  //static thread_local std::mt19937 gen(2); //Standard mersenne_twister_engine seeded with rd()
+  //static thread_local std::uniform_int_distribution<> distrib(0, sudoku_dimensions * sudoku_dimensions - 1 - 17);
   return distrib(gen);
 }
 
-static void randomly_remove(SudokuBoard & to_randomize)
+static void randomly_remove(SudokuBoard & to_randomize, std::mt19937 & gen, std::uniform_int_distribution<> & distrib, std::mt19937 & gen_to_remove, std::uniform_int_distribution<> & distrib_to_remove)
 {
-  std::random_device rd;  //Will be used to obtain a seed for the random number engine
-  std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-  std::uniform_int_distribution<> distrib(0, sudoku_dimensions * sudoku_dimensions - 1);
+  //static thread_local std::mt19937 gen(1); //Standard mersenne_twister_engine seeded with rd()
+  //static thread_local std::uniform_int_distribution<> distrib(0, sudoku_dimensions * sudoku_dimensions - 1);
 
-  int num_to_remove = random_number_to_remove();
+  int num_to_remove = random_number_to_remove(gen_to_remove, distrib_to_remove);
 
   for(int i = 0; i < num_to_remove; i++)
   {
@@ -44,9 +41,11 @@ static void randomly_remove(SudokuBoard & to_randomize)
 static void BM_Sudoku_Is_Possible_Solution(benchmark::State & state)
 {
   SudokuBoard board;
+  static thread_local std::mt19937 gen(0); //Standard mersenne_twister_engine seeded with rd()
+  static thread_local std::uniform_int_distribution<> distrib(0, 9);
   for(auto _ : state)
   {
-    randomize_board(board);
+    randomize_board(board, gen, distrib);
     benchmark::DoNotOptimize(Sudoku::isPossibleSolution(board));
   }
 }
@@ -56,9 +55,11 @@ BENCHMARK(BM_Sudoku_Is_Possible_Solution);
 static void BM_Sudoku_Is_Complete_Solution(benchmark::State & state)
 {
   SudokuBoard board;
+  static thread_local std::mt19937 gen(0); //Standard mersenne_twister_engine seeded with rd()
+  static thread_local std::uniform_int_distribution<> distrib(0, 9);
   for(auto _ : state)
   {
-    randomize_board(board);
+    randomize_board(board, gen, distrib);
     benchmark::DoNotOptimize(Sudoku::isComplete(board));
   }
 }
@@ -89,10 +90,14 @@ static void BM_Sudoku_Solver_Board1(benchmark::State & state)
     std::array<SudokuElementType, 9>{7,8,6,2,3,5,9,1,4},
     std::array<SudokuElementType, 9>{1,5,4,7,9,6,8,2,3},
     std::array<SudokuElementType, 9>{2,3,9,8,4,1,5,6,7}};
+  static thread_local std::mt19937 gen(2);
+  static thread_local std::uniform_int_distribution<> distrib(0, sudoku_dimensions * sudoku_dimensions - 1);
+  static thread_local std::mt19937 gen_to_remove(2); //Standard mersenne_twister_engine seeded with rd()
+  static thread_local std::uniform_int_distribution<> distrib_to_remove(0, sudoku_dimensions * sudoku_dimensions - 1 - 17);
   for(auto _ : state)
   {
     SudokuBoard copy = board;
-    randomly_remove(copy);
+    randomly_remove(copy, gen, distrib, gen_to_remove, distrib_to_remove);
     Solver solver(copy);
     solver.solve();
     benchmark::ClobberMemory();
@@ -113,10 +118,14 @@ static void BM_Sudoku_Solver_Board2(benchmark::State & state)
     std::array<SudokuElementType, 9>{5,2,1,7,9,4,8,3,6},
     std::array<SudokuElementType, 9>{9,3,4,8,1,6,2,5,7},
     std::array<SudokuElementType, 9>{6,7,8,3,2,5,1,4,9}};
+  static thread_local std::mt19937 gen(2);
+  static thread_local std::uniform_int_distribution<> distrib(0, sudoku_dimensions * sudoku_dimensions - 1);
+  static thread_local std::mt19937 gen_to_remove(2); //Standard mersenne_twister_engine seeded with rd()
+  static thread_local std::uniform_int_distribution<> distrib_to_remove(0, sudoku_dimensions * sudoku_dimensions - 1 - 17);
   for(auto _ : state)
   {
     SudokuBoard copy = board;
-    randomly_remove(copy);
+    randomly_remove(copy, gen, distrib, gen_to_remove, distrib_to_remove);
     Solver solver(copy);
     solver.solve();
     benchmark::ClobberMemory();
@@ -137,10 +146,14 @@ static void BM_Sudoku_Solver_Board3(benchmark::State & state)
     std::array<SudokuElementType, 9>{5,1,9,2,8,6,4,7,3},
     std::array<SudokuElementType, 9>{4,7,2,3,1,9,5,6,8},
     std::array<SudokuElementType, 9>{8,6,3,7,4,5,2,1,9}};
+  static thread_local std::mt19937 gen(2);
+  static thread_local std::uniform_int_distribution<> distrib(0, sudoku_dimensions * sudoku_dimensions - 1);
+  static thread_local std::mt19937 gen_to_remove(2); //Standard mersenne_twister_engine seeded with rd()
+  static thread_local std::uniform_int_distribution<> distrib_to_remove(0, sudoku_dimensions * sudoku_dimensions - 1 - 17);
   for(auto _ : state)
   {
     SudokuBoard copy = board;
-    randomly_remove(copy);
+    randomly_remove(copy, gen, distrib, gen_to_remove, distrib_to_remove);
     Solver solver(copy);
     solver.solve();
     benchmark::ClobberMemory();
@@ -161,10 +174,14 @@ static void BM_Sudoku_Solver_Board4(benchmark::State & state)
     std::array<SudokuElementType, 9>{5,3,1,6,7,2,9,8,4},
     std::array<SudokuElementType, 9>{6,4,9,8,3,1,2,5,7},
     std::array<SudokuElementType, 9>{8,2,7,5,4,9,6,1,3}};
+  static thread_local std::mt19937 gen(2);
+  static thread_local std::uniform_int_distribution<> distrib(0, sudoku_dimensions * sudoku_dimensions - 1);
+  static thread_local std::mt19937 gen_to_remove(2); //Standard mersenne_twister_engine seeded with rd()
+  static thread_local std::uniform_int_distribution<> distrib_to_remove(0, sudoku_dimensions * sudoku_dimensions - 1 - 17);
   for(auto _ : state)
   {
     SudokuBoard copy = board;
-    randomly_remove(copy);
+    randomly_remove(copy, gen, distrib, gen_to_remove, distrib_to_remove);
     Solver solver(copy);
     solver.solve();
     benchmark::ClobberMemory();
